@@ -7,7 +7,25 @@ public class Cliente {
     private String cpf;
     private String tipoCliente;
 
-    // Getters e Setters
+    // construtor sem argumentos
+    public Cliente() {
+        this.idCliente = 0;
+        this.nomeCliente = "";
+        this.rg = 0;
+        this.cpf = "";
+        this.tipoCliente = "";
+    }
+
+    // construtor com argumentos
+    public Cliente(int idCliente, String nomeCliente, int rg, String cpf, String tipoCliente) {
+        this.idCliente = idCliente;
+        this.nomeCliente = nomeCliente;
+        this.rg = rg;
+        this.cpf = cpf;
+        this.tipoCliente = tipoCliente;
+    }
+
+    // getters e setters
     public int getIdCliente() {
         return idCliente;
     }

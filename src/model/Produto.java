@@ -2,12 +2,30 @@ package model;
 
 public class Produto {
     private int idProduto;
-    private int idLoja; // Chave estrangeira para a loja
+    private int idLoja;
     private String nomeProduto;
     private int quantidadeProduto;
     private double valorUnitario;
 
-    // Getters e Setters
+    // construtor sem argumentos
+    public Produto() {
+        this.idProduto = 0;
+        this.idLoja = 0;
+        this.nomeProduto = "";
+        this.quantidadeProduto = 0;
+        this.valorUnitario = 0;
+    }
+
+    // construtor com argumentos
+    public Produto(int idProduto, int idLoja, String nomeProduto, int quantidadeProduto, double valorUnitario) {
+        this.idProduto = idProduto;
+        this.idLoja = idLoja;
+        this.nomeProduto = nomeProduto;
+        this.quantidadeProduto = quantidadeProduto;
+        this.valorUnitario = valorUnitario;
+    }
+
+    // getters e setters
     public int getIdProduto() {
         return idProduto;
     }
