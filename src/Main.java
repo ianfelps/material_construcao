@@ -152,11 +152,11 @@ public class Main {
         System.out.print("Tipo de cliente (Novo ou Antigo): ");
         String tipoCliente = scanner.nextLine();
 
-        Cliente novoCliente = new Cliente();
-        novoCliente.setNomeCliente(nome);
-        novoCliente.setRg(rg);
-        novoCliente.setCpf(cpf);
-        novoCliente.setTipoCliente(tipoCliente);
+        Cliente novoCliente = new Cliente(0, nome, rg, cpf, tipoCliente);
+//        novoCliente.setNomeCliente(nome);
+//        novoCliente.setRg(rg);
+//        novoCliente.setCpf(cpf);
+//        novoCliente.setTipoCliente(tipoCliente);
 
         clienteDAO.inserir(novoCliente);
         System.out.println("Cliente adicionado com sucesso!");
@@ -231,11 +231,11 @@ public class Main {
         double valorUnitario = scanner.nextDouble();
         scanner.nextLine(); // Consumir a nova linha após o número
 
-        Produto novoProduto = new Produto();
-        novoProduto.setNomeProduto(nome);
-        novoProduto.setIdLoja(idLoja);
-        novoProduto.setQuantidadeProduto(quantidade);
-        novoProduto.setValorUnitario(valorUnitario);
+        Produto novoProduto = new Produto(0, idLoja, nome, quantidade, valorUnitario);
+//        novoProduto.setNomeProduto(nome);
+//        novoProduto.setIdLoja(idLoja);
+//        novoProduto.setQuantidadeProduto(quantidade);
+//        novoProduto.setValorUnitario(valorUnitario);
 
         produtoDAO.inserir(novoProduto);
         System.out.println("Produto adicionado com sucesso!");
