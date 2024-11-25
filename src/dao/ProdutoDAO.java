@@ -9,9 +9,29 @@ import java.util.List;
 
 public class ProdutoDAO {
 
+    // Método para verificar se uma loja existe no banco de dados
+    public boolean existeLoja(int idLoja) {
+        String sql = "SELECT 1 FROM TB_LOJA WHERE ID_LOJA = ?";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idLoja);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao verificar se a loja existe: ", e);
+        }
+    }
+
     // Inserir Produto
-    public void inserir(Produto produto) {
-        String sql = "INSERT INTO TB_PRODUTO (ID_LOJA, NO_PRODUTO, QT_PRODUTO, VL_PRODUTO_UNITARIO) VALUES (?, ?, ?, ?)";
+    public boolean inserir(Produto produto) {
+        if (!existeLoja(produto.getIdLoja())) {
+            System.out.println("Loja com o ID " + produto.getIdLoja() + " não existe.");
+            return false;
+        }
+
+        String sql = "INSERT INTO TB_PRODUTO (ID_LOJA, NO_PRODUTO, QT_PRODUTO_ESTOQUE, VL_PRODUTO_UNITARIO) VALUES (?, ?, ?, ?)";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -20,7 +40,8 @@ public class ProdutoDAO {
             stmt.setInt(3, produto.getQuantidadeProduto());
             stmt.setDouble(4, produto.getValorUnitario());
 
-            stmt.executeUpdate();
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao inserir produto: ", e);
         }
@@ -40,7 +61,7 @@ public class ProdutoDAO {
                 produto.setIdProduto(rs.getInt("CD_PRODUTO"));
                 produto.setIdLoja(rs.getInt("ID_LOJA"));
                 produto.setNomeProduto(rs.getString("NO_PRODUTO"));
-                produto.setQuantidadeProduto(rs.getInt("QT_PRODUTO"));
+                produto.setQuantidadeProduto(rs.getInt("QT_PRODUTO_ESTOQUE"));
                 produto.setValorUnitario(rs.getDouble("VL_PRODUTO_UNITARIO"));
 
                 produtos.add(produto);
@@ -68,7 +89,7 @@ public class ProdutoDAO {
                     produto.setIdProduto(rs.getInt("CD_PRODUTO"));
                     produto.setIdLoja(rs.getInt("ID_LOJA"));
                     produto.setNomeProduto(rs.getString("NO_PRODUTO"));
-                    produto.setQuantidadeProduto(rs.getInt("QT_PRODUTO"));
+                    produto.setQuantidadeProduto(rs.getInt("QT_PRODUTO_ESTOQUE"));
                     produto.setValorUnitario(rs.getDouble("VL_PRODUTO_UNITARIO"));
                 }
             }
@@ -81,7 +102,7 @@ public class ProdutoDAO {
 
     // Atualizar produto
     public void atualizar(Produto produto) {
-        String sql = "UPDATE TB_PRODUTO SET ID_LOJA = ?, NO_PRODUTO = ?, QT_PRODUTO = ?, VL_PRODUTO_UNITARIO = ? WHERE CD_PRODUTO = ?";
+        String sql = "UPDATE TB_PRODUTO SET ID_LOJA = ?, NO_PRODUTO = ?, QT_PRODUTO_ESTOQUE = ?, VL_PRODUTO_UNITARIO = ? WHERE CD_PRODUTO = ?";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 

@@ -1,8 +1,12 @@
 import dao.AdministradorDAO;
 import dao.ClienteDAO;
 import dao.ProdutoDAO;
+import dao.EnderecoClienteDAO;
+import dao.TelefoneClienteDAO;
 import model.Cliente;
 import model.Produto;
+import model.EnderecoCliente;
+import model.TelefoneCliente;
 
 import java.util.List;
 import java.util.Scanner;
@@ -20,7 +24,7 @@ public class Main {
         String senha = scanner.nextLine();
 
         if (administradorDAO.validarLogin(login, senha)) {
-            System.out.println("Login bem-sucedido. Bem-vindo ao sistema de clientes!");
+            System.out.println("Login bem-sucedido. Bem-vindo ao sistema!");
             exibirMenuPrincipal(scanner);
         } else {
             System.out.println("Login ou senha inválidos. Encerrando o sistema.");
@@ -58,6 +62,8 @@ public class Main {
 
     private static void exibirMenuCliente(Scanner scanner) {
         ClienteDAO clienteDAO = new ClienteDAO();
+        EnderecoClienteDAO enderecoDAO = new EnderecoClienteDAO();
+        TelefoneClienteDAO telefoneDAO = new TelefoneClienteDAO();
         int opcao;
 
         do {
@@ -73,16 +79,16 @@ public class Main {
 
             switch (opcao) {
                 case 1:
-                    listarClientes(clienteDAO);
+                    listarClientes(clienteDAO, enderecoDAO, telefoneDAO);
                     break;
                 case 2:
-                    adicionarCliente(clienteDAO, scanner);
+                    adicionarCliente(clienteDAO, enderecoDAO, telefoneDAO, scanner);
                     break;
                 case 3:
-                    deletarCliente(clienteDAO, scanner);
+                    deletarCliente(clienteDAO, enderecoDAO, telefoneDAO, scanner);
                     break;
                 case 4:
-                    atualizarCliente(clienteDAO, scanner);
+                    atualizarCliente(clienteDAO, enderecoDAO, telefoneDAO, scanner);
                     break;
                 case 0:
                     System.out.println("Encerrando o sistema. Até logo!");
@@ -129,7 +135,7 @@ public class Main {
         } while (opcao != 0);
     }
 
-    private static void listarClientes(ClienteDAO clienteDAO) {
+    private static void listarClientes(ClienteDAO clienteDAO, EnderecoClienteDAO enderecoDAO, TelefoneClienteDAO telefoneDAO) {
         List<Cliente> clientes = clienteDAO.listarTodos();
         if (clientes.isEmpty()) {
             System.out.println("Não há clientes cadastrados.");
@@ -137,11 +143,21 @@ public class Main {
             System.out.println("Lista de Clientes:");
             for (Cliente cliente : clientes) {
                 System.out.println(cliente.getIdCliente() + " - " + cliente.getNomeCliente());
+                List<EnderecoCliente> enderecos = enderecoDAO.listarTodosPorCliente(cliente.getIdCliente());
+                System.out.println("Endereços:");
+                for (EnderecoCliente endereco : enderecos) {
+                    System.out.println("  " + endereco.getNomeEndereco() + ", " + endereco.getNomeCidade() + " - " + endereco.getSiglaUF());
+                }
+                List<TelefoneCliente> telefones = telefoneDAO.listarTodosPorCliente(cliente.getIdCliente());
+                System.out.println("Telefones:");
+                for (TelefoneCliente telefone : telefones) {
+                    System.out.println("  " + telefone.getNumeroTelefone());
+                }
             }
         }
     }
 
-    private static void adicionarCliente(ClienteDAO clienteDAO, Scanner scanner) {
+    private static void adicionarCliente(ClienteDAO clienteDAO, EnderecoClienteDAO enderecoDAO, TelefoneClienteDAO telefoneDAO, Scanner scanner) {
         System.out.print("Nome do cliente: ");
         String nome = scanner.nextLine();
         System.out.print("Número do RG: ");
@@ -153,35 +169,44 @@ public class Main {
         String tipoCliente = scanner.nextLine();
 
         Cliente novoCliente = new Cliente(0, nome, rg, cpf, tipoCliente);
-//        novoCliente.setNomeCliente(nome);
-//        novoCliente.setRg(rg);
-//        novoCliente.setCpf(cpf);
-//        novoCliente.setTipoCliente(tipoCliente);
+        int idGerado = clienteDAO.inserir(novoCliente); // Inserir cliente e obter o ID
 
-        clienteDAO.inserir(novoCliente);
-        System.out.println("Cliente adicionado com sucesso!");
+        if (idGerado > 0) {
+            adicionarEndereco(enderecoDAO, scanner, idGerado);
+            adicionarTelefone(telefoneDAO, scanner, idGerado);
+            adicionarMaisEnderecosETelefones(enderecoDAO, telefoneDAO, scanner, idGerado);
+
+            System.out.println("Cliente, Endereços e Telefones adicionados com sucesso!");
+        } else {
+            System.out.println("Erro ao adicionar cliente, endereços e telefones não foram adicionados.");
+        }
     }
 
-    private static void deletarCliente(ClienteDAO clienteDAO, Scanner scanner) {
+    private static void deletarCliente(ClienteDAO clienteDAO, EnderecoClienteDAO enderecoDAO, TelefoneClienteDAO telefoneDAO, Scanner scanner) {
         System.out.print("Digite o ID do cliente a ser deletado: ");
         int idCliente = scanner.nextInt();
         scanner.nextLine(); // Consumir a nova linha após o número
 
         Cliente cliente = clienteDAO.buscarPorId(idCliente);
         if (cliente != null) {
-            clienteDAO.deletar(idCliente);
-            System.out.println("Cliente deletado com sucesso!");
+            telefoneDAO.deletarPorIdCliente(idCliente); // Excluir telefones associados
+            enderecoDAO.deletarPorIdCliente(idCliente); // Excluir endereços associados
+            clienteDAO.deletar(idCliente); // Excluir o cliente por último
+            System.out.println("Cliente, endereços e telefones deletados com sucesso!");
         } else {
             System.out.println("Cliente não encontrado.");
         }
     }
 
-    private static void atualizarCliente(ClienteDAO clienteDAO, Scanner scanner) {
+    private static void atualizarCliente(ClienteDAO clienteDAO, EnderecoClienteDAO enderecoDAO, TelefoneClienteDAO telefoneDAO, Scanner scanner) {
         System.out.print("Digite o ID do cliente a ser atualizado: ");
         int idCliente = scanner.nextInt();
         scanner.nextLine(); // Consumir a nova linha após o número
 
         Cliente cliente = clienteDAO.buscarPorId(idCliente);
+        List<EnderecoCliente> enderecos = enderecoDAO.listarTodosPorCliente(idCliente);
+        List<TelefoneCliente> telefones = telefoneDAO.listarTodosPorCliente(idCliente);
+
         if (cliente != null) {
             System.out.println("Cliente encontrado: " + cliente.getNomeCliente());
             System.out.print("Novo nome: ");
@@ -200,10 +225,90 @@ public class Main {
             cliente.setTipoCliente(novoTipoCliente);
 
             clienteDAO.atualizar(cliente);
-            System.out.println("Cliente atualizado com sucesso!");
+
+            if (!enderecos.isEmpty()) {
+                for (EnderecoCliente endereco : enderecos) {
+                    System.out.println("Endereço encontrado: " + endereco.getNomeEndereco());
+                    System.out.print("Nova Sigla do Estado (UF): ");
+                    String novaSiglaUF = scanner.nextLine();
+                    System.out.print("Novo Nome do Endereço: ");
+                    String novoNomeEndereco = scanner.nextLine();
+                    System.out.print("Novo Nome da Cidade: ");
+                    String novaCidade = scanner.nextLine();
+
+                    endereco.setSiglaUF(novaSiglaUF);
+                    endereco.setNomeEndereco(novoNomeEndereco);
+                    endereco.setNomeCidade(novaCidade);
+                    enderecoDAO.atualizar(endereco);
+                }
+                System.out.println("Endereço(s) atualizado(s) com sucesso!");
+            } else {
+                System.out.println("Endereço não encontrado para o cliente.");
+            }
+
+            if (!telefones.isEmpty()) {
+                for (TelefoneCliente telefone : telefones) {
+                    System.out.println("Telefone encontrado: " + telefone.getNumeroTelefone());
+                    System.out.print("Novo número do Telefone: ");
+                    String novoNumeroTelefone = scanner.nextLine();
+
+                    telefone.setNumeroTelefone(novoNumeroTelefone);
+                    telefoneDAO.atualizar(telefone);
+                }
+                System.out.println("Telefone(s) atualizado(s) com sucesso!");
+            } else {
+                System.out.println("Telefone não encontrado para o cliente.");
+            }
+
+            adicionarMaisEnderecosETelefones(enderecoDAO, telefoneDAO, scanner, idCliente);
+
+            System.out.println("Cliente, Endereços e Telefones atualizados com sucesso!");
         } else {
             System.out.println("Cliente não encontrado.");
         }
+    }
+
+    private static void adicionarEndereco(EnderecoClienteDAO enderecoDAO, Scanner scanner, int idCliente) {
+        System.out.print("Sigla do Estado (UF): ");
+        String siglaUF = scanner.nextLine();
+        System.out.print("Nome do Endereço: ");
+        String nomeEndereco = scanner.nextLine();
+        System.out.print("Nome da Cidade: ");
+        String nomeCidade = scanner.nextLine();
+
+        EnderecoCliente novoEndereco = new EnderecoCliente(0, idCliente, siglaUF, nomeEndereco, nomeCidade);
+        enderecoDAO.inserir(novoEndereco);
+
+        System.out.println("Endereço adicionado com sucesso!");
+    }
+
+    private static void adicionarTelefone(TelefoneClienteDAO telefoneDAO, Scanner scanner, int idCliente) {
+        System.out.print("Número do Telefone: ");
+        String numeroTelefone = scanner.nextLine();
+
+        TelefoneCliente novoTelefone = new TelefoneCliente(0, idCliente, numeroTelefone);
+        telefoneDAO.inserir(novoTelefone);
+
+        System.out.println("Telefone adicionado com sucesso!");
+    }
+
+    private static void adicionarMaisEnderecosETelefones(EnderecoClienteDAO enderecoDAO, TelefoneClienteDAO telefoneDAO, Scanner scanner, int idCliente) {
+        String opcao;
+        do {
+            System.out.print("Deseja adicionar outro endereço para este cliente? (s/n): ");
+            opcao = scanner.nextLine();
+            if (opcao.equalsIgnoreCase("s")) {
+                adicionarEndereco(enderecoDAO, scanner, idCliente);
+            }
+        } while (opcao.equalsIgnoreCase("s"));
+
+        do {
+            System.out.print("Deseja adicionar outro telefone para este cliente? (s/n): ");
+            opcao = scanner.nextLine();
+            if (opcao.equalsIgnoreCase("s")) {
+                adicionarTelefone(telefoneDAO, scanner, idCliente);
+            }
+        } while (opcao.equalsIgnoreCase("s"));
     }
 
     private static void listarProdutos(ProdutoDAO produtoDAO) {
@@ -232,13 +337,13 @@ public class Main {
         scanner.nextLine(); // Consumir a nova linha após o número
 
         Produto novoProduto = new Produto(0, idLoja, nome, quantidade, valorUnitario);
-//        novoProduto.setNomeProduto(nome);
-//        novoProduto.setIdLoja(idLoja);
-//        novoProduto.setQuantidadeProduto(quantidade);
-//        novoProduto.setValorUnitario(valorUnitario);
 
-        produtoDAO.inserir(novoProduto);
-        System.out.println("Produto adicionado com sucesso!");
+        boolean sucesso = produtoDAO.inserir(novoProduto);
+        if (sucesso) {
+            System.out.println("Produto adicionado com sucesso!");
+        } else {
+            System.out.println("Erro ao adicionar produto. Verifique as informações e tente novamente.");
+        }
     }
 
     private static void deletarProduto(ProdutoDAO produtoDAO, Scanner scanner) {

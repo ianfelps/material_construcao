@@ -10,10 +10,12 @@ import java.util.List;
 public class ClienteDAO {
 
     // metodo para inserir um cliente
-    public void inserir(Cliente cliente) {
-        String sql = "INSERT INTO tb_cliente (no_cliente, nr_rg, nr_cpf, tp_cliente) VALUES (?, ?, ?, ?)";
+    public int inserir(Cliente cliente) {
+        String sql = "INSERT INTO TB_CLIENTE (NO_CLIENTE, NR_RG, NR_CPF, TP_CLIENTE) VALUES (?, ?, ?, ?)";
+        int geradoId = 0;
+
         try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, cliente.getNomeCliente());
             stmt.setInt(2, cliente.getRg());
@@ -21,9 +23,22 @@ public class ClienteDAO {
             stmt.setString(4, cliente.getTipoCliente());
             stmt.executeUpdate();
 
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    geradoId = generatedKeys.getInt(1);
+                    cliente.setIdCliente(geradoId);
+                } else {
+                    throw new SQLException("Falha ao inserir cliente, nenhum ID obtido.");
+                }
+            }
+
+            System.out.println("Cliente inserido com sucesso!");
+
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao inserir cliente: " + e.getMessage());
         }
+
+        return geradoId; // Retorna o ID gerado
     }
 
     // metodo para atualizar um cliente
@@ -40,13 +55,14 @@ public class ClienteDAO {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Erro ao atualizar cliente: ", e);
         }
     }
 
     // metodo para deletar um cliente
     public void deletar(int idCliente) {
-        String sql = "DELETE FROM tb_cliente WHERE id_cliente = ?";
+        String sql = "DELETE FROM TB_CLIENTE WHERE ID_CLIENTE = ?";
+
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
@@ -54,7 +70,7 @@ public class ClienteDAO {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.err.println("Erro ao deletar cliente: " + e.getMessage());
         }
     }
 
@@ -101,7 +117,7 @@ public class ClienteDAO {
             }
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Erro ao listar clientes: ", e);
         }
         return listaClientes;
     }
