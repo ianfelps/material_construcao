@@ -1,6 +1,7 @@
 package model;
 
 public class EnderecoCliente {
+    // atributos da TB_ENDERECO_CLIENTE
     private int idEnderecoCliente;
     private int idCliente;
     private String siglaUF;

@@ -20,7 +20,7 @@ public class AdministradorDAO {
             stmt.setString(2, senha);
 
             try (ResultSet rs = stmt.executeQuery()) {
-                // Se encontrar um registro, retorna true
+                // se encontrar um registro, retorna true
                 return rs.next();
             }
 

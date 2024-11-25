@@ -1,6 +1,7 @@
 package model;
 
 public class Administrador {
+    // atributos da TB_ADMINISTRADOR
     private String login;
     private String senha;
 

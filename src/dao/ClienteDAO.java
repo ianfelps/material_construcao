@@ -38,7 +38,7 @@ public class ClienteDAO {
             System.err.println("Erro ao inserir cliente: " + e.getMessage());
         }
 
-        return geradoId; // Retorna o ID gerado
+        return geradoId; // retorna o ID gerado
     }
 
     // metodo para atualizar um cliente

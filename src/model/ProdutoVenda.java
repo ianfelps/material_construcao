@@ -1,6 +1,7 @@
 package model;
 
 public class ProdutoVenda {
+    // atributos da TB_PRODUTO_VENDA
     private int idProdutoVenda;
     private int idVenda;
     private int codigoProduto;

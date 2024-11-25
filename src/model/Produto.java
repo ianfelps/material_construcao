@@ -1,6 +1,7 @@
 package model;
 
 public class Produto {
+    // atributos da TB_PRODUTO
     private int idProduto;
     private int idLoja;
     private String nomeProduto;

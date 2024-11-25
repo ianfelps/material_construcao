@@ -9,7 +9,7 @@ import java.util.List;
 
 public class ProdutoDAO {
 
-    // Método para verificar se uma loja existe no banco de dados
+    // metodo para verificar se uma loja existe no banco de dados
     public boolean existeLoja(int idLoja) {
         String sql = "SELECT 1 FROM TB_LOJA WHERE ID_LOJA = ?";
         try (Connection conn = ConnectionFactory.getConnection();
@@ -24,7 +24,7 @@ public class ProdutoDAO {
         }
     }
 
-    // Inserir Produto
+    // metodo para inserir um produto
     public boolean inserir(Produto produto) {
         if (!existeLoja(produto.getIdLoja())) {
             System.out.println("Loja com o ID " + produto.getIdLoja() + " não existe.");
@@ -47,33 +47,38 @@ public class ProdutoDAO {
         }
     }
 
-    // Listar todos os produtos
-    public List<Produto> listarTodos() {
-        String sql = "SELECT * FROM TB_PRODUTO";
-        List<Produto> produtos = new ArrayList<>();
-
+    // metodo para atualizar um produto
+    public void atualizar(Produto produto) {
+        String sql = "UPDATE TB_PRODUTO SET ID_LOJA = ?, NO_PRODUTO = ?, QT_PRODUTO_ESTOQUE = ?, VL_PRODUTO_UNITARIO = ? WHERE CD_PRODUTO = ?";
         try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            while (rs.next()) {
-                Produto produto = new Produto();
-                produto.setIdProduto(rs.getInt("CD_PRODUTO"));
-                produto.setIdLoja(rs.getInt("ID_LOJA"));
-                produto.setNomeProduto(rs.getString("NO_PRODUTO"));
-                produto.setQuantidadeProduto(rs.getInt("QT_PRODUTO_ESTOQUE"));
-                produto.setValorUnitario(rs.getDouble("VL_PRODUTO_UNITARIO"));
+            stmt.setInt(1, produto.getIdLoja());
+            stmt.setString(2, produto.getNomeProduto());
+            stmt.setInt(3, produto.getQuantidadeProduto());
+            stmt.setDouble(4, produto.getValorUnitario());
+            stmt.setInt(5, produto.getIdProduto());
 
-                produtos.add(produto);
-            }
+            stmt.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar produtos: ", e);
+            throw new RuntimeException("Erro ao atualizar produto: ", e);
         }
-
-        return produtos;
     }
 
-    // Buscar produto por ID
+    // metodo para deletar um produto
+    public void deletar(int idProduto) {
+        String sql = "DELETE FROM TB_PRODUTO WHERE CD_PRODUTO = ?";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idProduto);
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao deletar produto: ", e);
+        }
+    }
+
+    // metodo para buscar produto por ID
     public Produto buscarPorId(int idProduto) {
         String sql = "SELECT * FROM TB_PRODUTO WHERE CD_PRODUTO = ?";
         Produto produto = null;
@@ -100,34 +105,30 @@ public class ProdutoDAO {
         return produto;
     }
 
-    // Atualizar produto
-    public void atualizar(Produto produto) {
-        String sql = "UPDATE TB_PRODUTO SET ID_LOJA = ?, NO_PRODUTO = ?, QT_PRODUTO_ESTOQUE = ?, VL_PRODUTO_UNITARIO = ? WHERE CD_PRODUTO = ?";
+    // metodo para listar todos os produtos
+    public List<Produto> listarTodos() {
+        String sql = "SELECT * FROM TB_PRODUTO";
+        List<Produto> produtos = new ArrayList<>();
+
         try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
 
-            stmt.setInt(1, produto.getIdLoja());
-            stmt.setString(2, produto.getNomeProduto());
-            stmt.setInt(3, produto.getQuantidadeProduto());
-            stmt.setDouble(4, produto.getValorUnitario());
-            stmt.setInt(5, produto.getIdProduto());
+            while (rs.next()) {
+                Produto produto = new Produto();
+                produto.setIdProduto(rs.getInt("CD_PRODUTO"));
+                produto.setIdLoja(rs.getInt("ID_LOJA"));
+                produto.setNomeProduto(rs.getString("NO_PRODUTO"));
+                produto.setQuantidadeProduto(rs.getInt("QT_PRODUTO_ESTOQUE"));
+                produto.setValorUnitario(rs.getDouble("VL_PRODUTO_UNITARIO"));
 
-            stmt.executeUpdate();
+                produtos.add(produto);
+            }
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar produto: ", e);
+            throw new RuntimeException("Erro ao listar produtos: ", e);
         }
+
+        return produtos;
     }
 
-    // Deletar produto
-    public void deletar(int idProduto) {
-        String sql = "DELETE FROM TB_PRODUTO WHERE CD_PRODUTO = ?";
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, idProduto);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Erro ao deletar produto: ", e);
-        }
-    }
 }

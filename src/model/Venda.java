@@ -3,6 +3,7 @@ package model;
 import java.time.LocalDateTime;
 
 public class Venda {
+    // atributos da TB_VENDA
     private int idVenda;
     private int idCliente;
     private LocalDateTime dataHoraPagamento;

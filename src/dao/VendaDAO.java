@@ -10,7 +10,7 @@ import java.util.List;
 public class VendaDAO {
 
     // metodo para adicionar uma nova venda
-    public void adicionarVenda(Venda venda) {
+    public void inserir(Venda venda) {
         String sql = "INSERT INTO TB_VENDA (ID_CLIENTE, DH_PAGAMENTO, VL_TOTAL_VENDA, IC_PAGO) VALUES (?, ?, ?, ?)";
 
         try (Connection conn = ConnectionFactory.getConnection();
@@ -36,7 +36,7 @@ public class VendaDAO {
     }
 
     // metodo para atualizar uma venda
-    public void atualizarVenda(Venda venda) {
+    public void atualizar(Venda venda) {
         String sql = "UPDATE TB_VENDA SET ID_CLIENTE = ?, DH_PAGAMENTO = ?, VL_TOTAL_VENDA = ?, IC_PAGO = ? WHERE ID_VENDA = ?";
 
         try (Connection conn = ConnectionFactory.getConnection();
@@ -56,8 +56,24 @@ public class VendaDAO {
         }
     }
 
+    // metodo para excluir uma venda
+    public void deletar(int idVenda) {
+        String sql = "DELETE FROM TB_VENDA WHERE ID_VENDA = ?";
+
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idVenda);
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao excluir venda.", e);
+        }
+    }
+
     // metodo para buscar uma venda pelo ID
-    public Venda buscarVendaPorId(int idVenda) {
+    public Venda buscarPorId(int idVenda) {
         String sql = "SELECT * FROM TB_VENDA WHERE ID_VENDA = ?";
         Venda venda = null;
 
@@ -86,7 +102,7 @@ public class VendaDAO {
     }
 
     // metodo para listar todas as vendas
-    public List<Venda> listarVendas() {
+    public List<Venda> listarTodos() {
         String sql = "SELECT * FROM TB_VENDA";
         List<Venda> vendas = new ArrayList<>();
 
@@ -112,19 +128,4 @@ public class VendaDAO {
         return vendas;
     }
 
-    // metodo para excluir uma venda
-    public void excluirVenda(int idVenda) {
-        String sql = "DELETE FROM TB_VENDA WHERE ID_VENDA = ?";
-
-        try (Connection conn = ConnectionFactory.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-
-            stmt.setInt(1, idVenda);
-            stmt.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Erro ao excluir venda.", e);
-        }
-    }
 }

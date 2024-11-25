@@ -1,6 +1,7 @@
 package model;
 
 public class Cliente {
+    // atributos da TB_CLIENTE
     private int idCliente;
     private String nomeCliente;
     private int rg;

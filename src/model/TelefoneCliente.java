@@ -1,6 +1,7 @@
 package model;
 
 public class TelefoneCliente {
+    // atributos da TB_TELEFONE_CLIENTE
     private int idTelefoneCliente;
     private int idCliente;
     private String numeroTelefone;
