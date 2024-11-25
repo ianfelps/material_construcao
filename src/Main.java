@@ -1,13 +1,8 @@
-import dao.AdministradorDAO;
-import dao.ClienteDAO;
-import dao.ProdutoDAO;
-import dao.EnderecoClienteDAO;
-import dao.TelefoneClienteDAO;
-import model.Cliente;
-import model.Produto;
-import model.EnderecoCliente;
-import model.TelefoneCliente;
+import dao.*;
+import model.*;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -39,6 +34,7 @@ public class Main {
             System.out.println("\n--- Menu Principal ---");
             System.out.println("1. Gerenciar Clientes");
             System.out.println("2. Gerenciar Produtos");
+            System.out.println("3. Gerenciar Vendas");
             System.out.println("0. Sair");
             System.out.print("Escolha uma opção: ");
             opcao = scanner.nextInt();
@@ -50,6 +46,9 @@ public class Main {
                     break;
                 case 2:
                     exibirMenuProduto(scanner);
+                    break;
+                case 3:
+                    exibirMenuVenda(scanner);
                     break;
                 case 0:
                     System.out.println("Saindo...");
@@ -126,6 +125,43 @@ public class Main {
                     break;
                 case 4:
                     atualizarProduto(produtoDAO, scanner);
+                    break;
+                case 0:
+                    break;
+                default:
+                    System.out.println("Opção inválida. Tente novamente.");
+            }
+        } while (opcao != 0);
+    }
+
+    private static void exibirMenuVenda(Scanner scanner) {
+        VendaDAO vendaDAO = new VendaDAO();
+        ProdutoVendaDAO produtoVendaDAO = new ProdutoVendaDAO();
+        int opcao;
+
+        do {
+            System.out.println("\n--- Menu de Vendas ---");
+            System.out.println("1. Ver todas as vendas");
+            System.out.println("2. Adicionar nova venda");
+            System.out.println("3. Deletar venda");
+            System.out.println("4. Atualizar venda");
+            System.out.println("0. Voltar ao menu principal");
+            System.out.print("Escolha uma opção: ");
+            opcao = scanner.nextInt();
+            scanner.nextLine(); // Consumir a nova linha após o número
+
+            switch (opcao) {
+                case 1:
+                    listarVendas(vendaDAO);
+                    break;
+                case 2:
+                    adicionarVenda(vendaDAO, produtoVendaDAO, scanner);
+                    break;
+                case 3:
+                    deletarVenda(vendaDAO, produtoVendaDAO, scanner);
+                    break;
+                case 4:
+                    atualizarVenda(vendaDAO, produtoVendaDAO, scanner);
                     break;
                 case 0:
                     break;
@@ -384,6 +420,240 @@ public class Main {
             System.out.println("Produto atualizado com sucesso!");
         } else {
             System.out.println("Produto não encontrado.");
+        }
+    }
+
+    private static void listarVendas(VendaDAO vendaDAO) {
+        List<Venda> vendas = vendaDAO.listarVendas();
+        if (vendas.isEmpty()) {
+            System.out.println("Não há vendas cadastradas.");
+        } else {
+            System.out.println("Lista de Vendas:");
+            for (Venda venda : vendas) {
+                System.out.println(venda.getIdVenda() + " - Cliente ID: " + venda.getIdCliente() +
+                        " | Data/Hora Pagamento: " + venda.getDataHoraPagamento() +
+                        " | Valor Total: R$ " + venda.getValorTotalVenda() +
+                        " | Pago: " + (venda.isStatusPago() ? "Sim" : "Não"));
+            }
+        }
+    }
+
+    private static void adicionarVenda(VendaDAO vendaDAO, ProdutoVendaDAO produtoVendaDAO, Scanner scanner) {
+        ClienteDAO clienteDAO = new ClienteDAO();
+
+        System.out.print("ID do Cliente: ");
+        int idCliente = scanner.nextInt();
+        scanner.nextLine(); // Consumir a nova linha após o número
+
+        Cliente cliente = clienteDAO.buscarPorId(idCliente);
+        if (cliente == null) {
+            System.out.println("Cliente não encontrado.");
+            return;
+        }
+
+        Venda novaVenda = new Venda();
+        novaVenda.setIdCliente(idCliente);
+
+        // Permitir que o usuário insira a data da venda
+        System.out.print("Data/Hora da venda (YYYY-MM-DDTHH:MM:SS) ou deixe vazio para nulo: ");
+        String dataHoraVendaInput = scanner.nextLine();
+
+        if (dataHoraVendaInput.isEmpty() && cliente.getTipoCliente().equalsIgnoreCase("Antigo")) {
+            novaVenda.setDataHoraPagamento(null);
+            novaVenda.setStatusPago(false);
+        } else if (!dataHoraVendaInput.isEmpty()) {
+            novaVenda.setDataHoraPagamento(LocalDateTime.parse(dataHoraVendaInput));
+            novaVenda.setStatusPago(true);
+        } else {
+            // Condição onde data é nula para clientes não antigos
+            System.out.println("Data de venda não pode ser nula para clientes do tipo não antigo.");
+            return;
+        }
+
+        // Persistir a nova venda no banco de dados para obter seu ID
+        vendaDAO.adicionarVenda(novaVenda);
+        int idVenda = novaVenda.getIdVenda();
+        novaVenda.setIdVenda(idVenda);
+
+        // Lista para armazenar produtos adicionados
+        List<ProdutoVenda> produtosAdicionados = new ArrayList<>();
+        double valorTotalVenda = 0.0;
+
+        // Adicionar produtos à venda
+        String adicionarMaisProdutos;
+        do {
+            System.out.print("Código do Produto: ");
+            int codigoProduto = scanner.nextInt();
+            System.out.print("Quantidade do Produto Retirado: ");
+            int quantidadeRetirada = scanner.nextInt();
+            scanner.nextLine(); // Consumir a nova linha após o número
+
+            ProdutoVenda produtoVenda = new ProdutoVenda();
+            produtoVenda.setIdVenda(idVenda); // Usar o ID da venda persistida
+            produtoVenda.setCodigoProduto(codigoProduto);
+            produtoVenda.setQuantidadeProdutoRetirado(quantidadeRetirada);
+
+            try {
+                produtoVendaDAO.adicionarProdutoVenda(produtoVenda);
+                valorTotalVenda += produtoVenda.getValorTotalProduto();
+                produtosAdicionados.add(produtoVenda);
+                System.out.println("Produto adicionado à venda com sucesso!");
+            } catch (RuntimeException e) {
+                System.out.println("Erro ao adicionar produto à venda: " + e.getMessage());
+            }
+
+            System.out.print("Deseja adicionar mais produtos a esta venda? (s/n): ");
+            adicionarMaisProdutos = scanner.nextLine();
+        } while (adicionarMaisProdutos.equalsIgnoreCase("s"));
+
+        // Mostrar detalhes da venda e pedir confirmação
+        System.out.println("\n--- Detalhes da Venda ---");
+        System.out.println("Cliente ID: " + idCliente);
+        System.out.println("Data/Hora Pagamento: " + (novaVenda.getDataHoraPagamento() != null ? novaVenda.getDataHoraPagamento() : "N/A"));
+        System.out.println("Produtos:");
+        for (ProdutoVenda produto : produtosAdicionados) {
+            System.out.println("  Código do Produto: " + produto.getCodigoProduto() + ", Quantidade: " + produto.getQuantidadeProdutoRetirado() + ", Valor Total: R$ " + produto.getValorTotalProduto());
+        }
+        System.out.println("Valor Total da Venda: R$ " + valorTotalVenda);
+
+        // Confirmar venda
+        System.out.print("\nConfirma essa venda? (s/n): ");
+        String confirmacao = scanner.nextLine();
+        if (!confirmacao.equalsIgnoreCase("s")) {
+            // Se a venda não for confirmada, excluir os produtos adicionados e sair
+            for (ProdutoVenda produto : produtosAdicionados) {
+                produtoVendaDAO.excluirProdutoVenda(produto.getIdProdutoVenda());
+            }
+            // Excluir a venda também
+            vendaDAO.excluirVenda(novaVenda.getIdVenda());
+            System.out.println("Venda cancelada.");
+            return;
+        }
+
+        // Persistir a venda com o valor total
+        novaVenda.setValorTotalVenda(valorTotalVenda);
+        vendaDAO.atualizarVenda(novaVenda);
+        System.out.println("Venda adicionada com sucesso!");
+    }
+
+    private static void deletarVenda(VendaDAO vendaDAO, ProdutoVendaDAO produtoVendaDAO, Scanner scanner) {
+        System.out.print("Digite o ID da venda a ser deletada: ");
+        int idVenda = scanner.nextInt();
+        scanner.nextLine(); // Consumir a nova linha após o número
+
+        Venda venda = vendaDAO.buscarVendaPorId(idVenda);  // Buscar detalhes da venda
+        if (venda != null) {
+            List<ProdutoVenda> produtosVenda = produtoVendaDAO.listarProdutosVenda();
+
+            // Excluir produtos da venda primeiro
+            for (ProdutoVenda produtoVenda : produtosVenda) {
+                if (produtoVenda.getIdVenda() == idVenda) {
+                    produtoVendaDAO.excluirProdutoVenda(produtoVenda.getIdProdutoVenda());
+                }
+            }
+
+            // Em seguida, excluir a venda
+            vendaDAO.excluirVenda(idVenda);
+            System.out.println("Venda deletada com sucesso!");
+        } else {
+            System.out.println("Venda não encontrada.");
+        }
+    }
+
+    private static void atualizarVenda(VendaDAO vendaDAO, ProdutoVendaDAO produtoVendaDAO, Scanner scanner) {
+        System.out.print("Digite o ID da venda a ser atualizada: ");
+        int idVenda = scanner.nextInt();
+        scanner.nextLine(); // Consumir a nova linha após o número
+
+        Venda venda = vendaDAO.buscarVendaPorId(idVenda); // Buscar detalhes da venda
+        if (venda != null) {
+            System.out.println("Venda encontrada: ID Cliente - " + venda.getIdCliente());
+
+            // Atualizar dados da venda
+            System.out.print("Novo ID do Cliente: ");
+            int novoIdCliente = scanner.nextInt();
+            scanner.nextLine(); // Consumir a nova linha após o número
+
+            System.out.print("Novo status de pagamento (true para pago, false para não pago): ");
+            boolean novoStatusPago = scanner.nextBoolean();
+            scanner.nextLine(); // Consumir a nova linha após o boolean
+
+            // Permitir que o usuário insira a nova data da venda
+            System.out.print("Data/Hora da venda (YYYY-MM-DDTHH:MM:SS) ou deixe vazio para manter o valor atual: ");
+            String novaDataHoraVendaInput = scanner.nextLine();
+
+            ClienteDAO clienteDAO = new ClienteDAO();
+            Cliente cliente = clienteDAO.buscarPorId(novoIdCliente); // Buscar tipo de cliente atualizado
+            if (cliente == null) {
+                System.out.println("Cliente não encontrado.");
+                return;
+            }
+
+            if (novaDataHoraVendaInput.isEmpty() && venda.getDataHoraPagamento() == null && cliente.getTipoCliente().equalsIgnoreCase("Antigo")) {
+                venda.setDataHoraPagamento(null);
+            } else if (!novaDataHoraVendaInput.isEmpty()) {
+                venda.setDataHoraPagamento(LocalDateTime.parse(novaDataHoraVendaInput));
+            } else if (novaDataHoraVendaInput.isEmpty() && cliente.getTipoCliente().equalsIgnoreCase("Novo") && venda.getDataHoraPagamento() == null) {
+                System.out.println("Data de venda não pode ser nula para clientes do tipo não antigo.");
+                return;
+            }
+
+            // Atualiza os novos dados da venda
+            venda.setIdCliente(novoIdCliente);
+            venda.setStatusPago(novoStatusPago);
+
+            vendaDAO.atualizarVenda(venda);
+            System.out.println("Venda atualizada com sucesso!");
+
+            // Perguntar se deseja atualizar produtos da venda
+            System.out.print("Deseja atualizar os produtos dessa venda? (s/n): ");
+            String atualizarProdutos = scanner.nextLine();
+            if (atualizarProdutos.equalsIgnoreCase("s")) {
+                System.out.print("Deseja limpar os produtos existentes e adicionar novos? (s/n): ");
+                String limparProdutos = scanner.nextLine();
+                if (limparProdutos.equalsIgnoreCase("s")) {
+                    // Excluir produtos existentes da venda
+                    List<ProdutoVenda> produtosVenda = produtoVendaDAO.listarProdutosVenda();
+                    for (ProdutoVenda produtoVenda : produtosVenda) {
+                        if (produtoVenda.getIdVenda() == idVenda) {
+                            produtoVendaDAO.excluirProdutoVenda(produtoVenda.getIdProdutoVenda());
+                        }
+                    }
+                }
+
+                // Adicionar novos produtos
+                double novoValorTotalVenda = 0.0;
+                String adicionarMaisProdutos;
+                do {
+                    System.out.print("Código do Produto: ");
+                    int codigoProduto = scanner.nextInt();
+                    System.out.print("Quantidade do Produto Retirado: ");
+                    int quantidadeRetirada = scanner.nextInt();
+                    scanner.nextLine(); // Consumir a nova linha após o número
+
+                    ProdutoVenda produtoVenda = new ProdutoVenda();
+                    produtoVenda.setIdVenda(venda.getIdVenda());
+                    produtoVenda.setCodigoProduto(codigoProduto);
+                    produtoVenda.setQuantidadeProdutoRetirado(quantidadeRetirada);
+
+                    try {
+                        produtoVendaDAO.adicionarProdutoVenda(produtoVenda);
+                        novoValorTotalVenda += produtoVenda.getValorTotalProduto();
+                        System.out.println("Produto adicionado à venda com sucesso!");
+                    } catch (RuntimeException e) {
+                        System.out.println("Erro ao adicionar produto à venda: " + e.getMessage());
+                    }
+
+                    System.out.print("Deseja adicionar mais produtos a esta venda? (s/n): ");
+                    adicionarMaisProdutos = scanner.nextLine();
+                } while (adicionarMaisProdutos.equalsIgnoreCase("s"));
+
+                venda.setValorTotalVenda(novoValorTotalVenda);
+                vendaDAO.atualizarVenda(venda);
+                System.out.println("Produtos da venda atualizados com sucesso!");
+            }
+        } else {
+            System.out.println("Venda não encontrada.");
         }
     }
 }

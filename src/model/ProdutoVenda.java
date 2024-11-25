@@ -7,7 +7,7 @@ public class ProdutoVenda {
     private int quantidadeProdutoRetirado;
     private double valorTotalProduto;
 
-    // construtor vazio
+    // construtor sem argumentos
     public ProdutoVenda() {
         this.idProdutoVenda = 0;
         this.idVenda = 0;

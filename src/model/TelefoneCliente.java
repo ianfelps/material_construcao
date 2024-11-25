@@ -5,13 +5,14 @@ public class TelefoneCliente {
     private int idCliente;
     private String numeroTelefone;
 
-    // construtores
+    // construtor sem argumentos
     public TelefoneCliente() {
         this.idTelefoneCliente = 0;
         this.idCliente = 0;
         this.numeroTelefone = "";
     }
 
+    // construtor com argumentos
     public TelefoneCliente(int idTelefoneCliente, int idCliente, String numeroTelefone) {
         this.idTelefoneCliente = idTelefoneCliente;
         this.idCliente = idCliente;

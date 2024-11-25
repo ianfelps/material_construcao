@@ -94,6 +94,7 @@ public class ClienteDAO {
 
         } catch (SQLException e) {
             e.printStackTrace();
+            throw new RuntimeException("Erro ao buscar cliente.", e);
         }
         return null;
     }
