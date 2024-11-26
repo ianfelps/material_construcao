@@ -1,13 +1,24 @@
 import dao.*;
 import model.*;
+import views.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import javax.swing.*;
 
 public class Main {
 
+    public static void main(String[] args) {
+
+        // abrir a tela de login
+        TelaLogin telaLogin = new TelaLogin();
+        telaLogin.setVisible(true);
+    }
+}
+
+/*
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         AdministradorDAO administradorDAO = new AdministradorDAO();
@@ -657,3 +668,4 @@ public class Main {
         }
     }
 }
+*/
