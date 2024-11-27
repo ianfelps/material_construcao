@@ -9,7 +9,7 @@ import java.util.List;
 
 public class ProdutoDAO {
 
-    // metodo para verificar se uma loja existe no banco de dados
+    // metodo para verificar se uma loja existe
     public boolean existeLoja(int idLoja) {
         String sql = "SELECT 1 FROM TB_LOJA WHERE ID_LOJA = ?";
         try (Connection conn = ConnectionFactory.getConnection();
@@ -21,6 +21,21 @@ public class ProdutoDAO {
             }
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao verificar se a loja existe: ", e);
+        }
+    }
+
+    // metodo para verificar se o produto esta em uma venda
+    public boolean produtoEmVenda(int idProduto) {
+        String sql = "SELECT 1 FROM TB_PRODUTO_VENDA WHERE CD_PRODUTO = ?";
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idProduto);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao verificar se o produto está em uma venda: ", e);
         }
     }
 
@@ -67,6 +82,10 @@ public class ProdutoDAO {
 
     // metodo para deletar um produto
     public void deletar(int idProduto) {
+        // verifica se o produto esta em uma venda
+        if (produtoEmVenda(idProduto)) {
+            throw new RuntimeException("O produto não pode ser deletado pois está associado a uma venda.");
+        }
         String sql = "DELETE FROM TB_PRODUTO WHERE CD_PRODUTO = ?";
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {

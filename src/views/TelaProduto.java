@@ -1,27 +1,39 @@
 package views;
 
+import dao.ProdutoDAO;
+import model.Produto;
+
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class TelaProduto extends JFrame {
+
+    // atributos
     private final JLabel iconeLabel;
     private final JLabel tituloLabel;
     private final JLabel subtituloLabel;
-    private final JButton consultarButton;
     private final JButton cadastrarButton;
     private final JButton atualizarButton;
     private final JButton deletarButton;
     private final JButton voltarButton;
+    private JTable tabelaProdutos;
+    private DefaultTableModel modeloTabela;
+
+    private ProdutoDAO produtoDAO;
 
     // construtor
     public TelaProduto() {
         super("Gerenciamento de Produtos");
-        setSize(500, 600);
+        setSize(800, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(true);
+
+        produtoDAO = new ProdutoDAO();
 
         // layout
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
@@ -46,36 +58,48 @@ public class TelaProduto extends JFrame {
         subtituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // botoes
-        consultarButton = new JButton("Listar Produtos");
-        consultarButton.setFont(secundariaFont);
-        consultarButton.setPreferredSize(new Dimension(200, 50));
-        consultarButton.setMaximumSize(new Dimension(200, 50));
-        consultarButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-
         cadastrarButton = new JButton("Adicionar Produto");
         cadastrarButton.setFont(secundariaFont);
-        cadastrarButton.setPreferredSize(new Dimension(200, 50));
-        cadastrarButton.setMaximumSize(new Dimension(200, 50));
         cadastrarButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        cadastrarButton.addActionListener(new CadastrarActionListener());
 
         atualizarButton = new JButton("Atualizar Produto");
         atualizarButton.setFont(secundariaFont);
-        atualizarButton.setPreferredSize(new Dimension(200, 50));
-        atualizarButton.setMaximumSize(new Dimension(200, 50));
         atualizarButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        atualizarButton.addActionListener(new AtualizarActionListener());
 
         deletarButton = new JButton("Deletar Produto");
         deletarButton.setFont(secundariaFont);
-        deletarButton.setPreferredSize(new Dimension(200, 50));
-        deletarButton.setMaximumSize(new Dimension(200, 50));
         deletarButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        deletarButton.addActionListener(new DeletarActionListener());
 
         voltarButton = new JButton("Voltar");
         voltarButton.setFont(secundariaFont);
-        voltarButton.setPreferredSize(new Dimension(200, 50));
-        voltarButton.setMaximumSize(new Dimension(200, 50));
         voltarButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        voltarButton.addActionListener(new TelaProduto.voltarActionListener());
+        voltarButton.addActionListener(new VoltarActionListener());
+
+        // painel de botoes
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
+        buttonPanel.add(Box.createHorizontalGlue());
+        buttonPanel.add(cadastrarButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        buttonPanel.add(atualizarButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        buttonPanel.add(deletarButton);
+        buttonPanel.add(Box.createRigidArea(new Dimension(10, 0)));
+        buttonPanel.add(voltarButton);
+        buttonPanel.add(Box.createHorizontalGlue());
+
+        // tabela de produtos
+        modeloTabela = new DefaultTableModel(new String[]{"ID", "Nome", "Quantidade", "Valor"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+        tabelaProdutos = new JTable(modeloTabela);
+        JScrollPane pane = new JScrollPane(tabelaProdutos);
 
         // adicionar elementos
         add(Box.createVerticalStrut(15));
@@ -85,24 +109,118 @@ public class TelaProduto extends JFrame {
         add(Box.createVerticalStrut(15));
         add(subtituloLabel);
         add(Box.createVerticalStrut(15));
-        add(consultarButton);
-        add(Box.createVerticalStrut(20));
-        add(cadastrarButton);
-        add(Box.createVerticalStrut(20));
-        add(atualizarButton);
-        add(Box.createVerticalStrut(20));
-        add(deletarButton);
-        add(Box.createVerticalStrut(20));
-        add(voltarButton);
+        add(pane);
+        add(Box.createVerticalStrut(15));
+        add(buttonPanel);
+        add(Box.createVerticalStrut(15));
+
+        // carregar produtos ao abrir a tela
+        carregarProdutos();
     }
 
-    // eventos dos botoes
-    private class voltarActionListener implements ActionListener {
+    // metodo para carregar produtos
+    private void carregarProdutos() {
+        List<Produto> produtos = produtoDAO.listarTodos();
+        modeloTabela.setRowCount(0); // limpar a tabela
+        for (Produto produto : produtos) {
+            modeloTabela.addRow(new Object[]{
+                    produto.getIdProduto(),
+                    produto.getNomeProduto(),
+                    produto.getQuantidadeProduto(),
+                    produto.getValorUnitario()
+            });
+        }
+    }
+
+    // metodo para voltar para a tela principal
+    private class VoltarActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             dispose();
-            TelaMenu telaMenu = new TelaMenu();
-            telaMenu.setVisible(true);
+            new TelaMenu().setVisible(true);
+        }
+    }
+
+    // metodo para o botao de cadastrar produto
+    private class CadastrarActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            Produto produto = new Produto();
+
+            ProdutoDialog dialog = new ProdutoDialog(TelaProduto.this, "Adicionar Produto", produto);
+            dialog.setVisible(true);
+
+            if (dialog.isSalvarClicked()) {
+                produtoDAO.inserir(produto);
+                carregarProdutos();
+            }
+        }
+    }
+
+    // metodo para o botao de atualizar produto
+    private class AtualizarActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int selectedRow = tabelaProdutos.getSelectedRow();
+            if (selectedRow != -1) {
+                int idProduto = (int) modeloTabela.getValueAt(selectedRow, 0);
+                Produto produto = produtoDAO.buscarPorId(idProduto);
+
+                ProdutoDialog dialog = new ProdutoDialog(TelaProduto.this, "Atualizar Produto", produto);
+                dialog.setVisible(true);
+
+                if (dialog.isSalvarClicked()) {
+                    produtoDAO.atualizar(produto);
+                    carregarProdutos();
+                }
+            } else {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "Selecione um produto para atualizar.",
+                        "Atualizar Produto",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
+        }
+    }
+
+    // metodo para o botao de deletar produto
+    private class DeletarActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int selectedRow = tabelaProdutos.getSelectedRow();
+            if (selectedRow != -1) {
+                int idProduto = (int) modeloTabela.getValueAt(selectedRow, 0);
+                Object[] options = {"Sim", "Não"};
+                int confirm = JOptionPane.showOptionDialog(
+                        null,
+                        "Tem certeza que deseja deletar o produto?",
+                        "Confirmação",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE,
+                        null,
+                        options,
+                        options[0]
+                );
+                if (confirm == JOptionPane.YES_OPTION) {
+                    produtoDAO.deletar(idProduto);
+                    modeloTabela.removeRow(selectedRow); // remover a linha da tabela
+                    JOptionPane.showMessageDialog(
+                            null,
+                            "Produto deletado com sucesso!",
+                            "Confirmação",
+                            JOptionPane.INFORMATION_MESSAGE
+                    );
+                }
+                carregarProdutos();
+            } else {
+                JOptionPane.showMessageDialog(
+                        null,
+                        "Selecione um produto para deletar.",
+                        "Deletar Produto",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
         }
     }
 }
