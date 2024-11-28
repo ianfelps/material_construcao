@@ -62,7 +62,7 @@ public class TelaCliente extends JFrame {
         tituloLabel.setFont(primariaFont);
         tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        subtituloLabel = new JLabel("Bem-vindo ao gerenciamento de clientes!");
+        subtituloLabel = new JLabel("Verifique e gerencie os clientes!");
         subtituloLabel.setFont(secundariaFont);
         subtituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 

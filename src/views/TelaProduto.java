@@ -53,7 +53,7 @@ public class TelaProduto extends JFrame {
         tituloLabel.setFont(primariaFont);
         tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        subtituloLabel = new JLabel("Bem-vindo ao gerenciamento de produtos!");
+        subtituloLabel = new JLabel("Verifique e gerencie os produtos!");
         subtituloLabel.setFont(secundariaFont);
         subtituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 

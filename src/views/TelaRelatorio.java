@@ -56,7 +56,7 @@ public class TelaRelatorio extends JFrame {
         tituloLabel.setFont(primariaFont);
         tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        subtituloLabel = new JLabel("Verifique e gerencie suas vendas!");
+        subtituloLabel = new JLabel("Verifique e gerencie as vendas!");
         subtituloLabel.setFont(secundariaFont);
         subtituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -120,9 +120,10 @@ public class TelaRelatorio extends JFrame {
         }
     }
 
+    // metodo para carregar as vendas
     private void carregarVendas() {
         List<Venda> vendas = vendaDAO.listarTodos();
-        modeloTabela.setRowCount(0); // Limpa a tabela antes de preencher novamente
+        modeloTabela.setRowCount(0); // limpa a tabela antes de preencher novamente
 
         for (Venda venda : vendas) {
             Cliente cliente = clienteDAO.buscarPorId(venda.getIdCliente());
@@ -137,6 +138,7 @@ public class TelaRelatorio extends JFrame {
         }
     }
 
+    // metodo para vizualizar venda
     private class VisualizarActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -255,6 +257,7 @@ public class TelaRelatorio extends JFrame {
         }
     }
 
+    // metodo para deletar uma venda
     private class DeletarActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
