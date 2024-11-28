@@ -99,6 +99,33 @@ public class ClienteDAO {
         return null;
     }
 
+    // metodo para buscar um cliente por nome
+    public Cliente buscarPorNome(String nome) {
+        String sql = "SELECT * FROM TB_CLIENTE WHERE NO_CLIENTE = ?";
+        Cliente cliente = null;
+
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, nome);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    cliente = new Cliente();
+                    cliente.setIdCliente(rs.getInt("ID_CLIENTE"));
+                    cliente.setNomeCliente(rs.getString("NO_CLIENTE"));
+                    // Configure outros atributos conforme necessário
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao buscar cliente.", e);
+        }
+
+        return cliente;
+    }
+
     // metodo para listar todos os clientes
     public List<Cliente> listarTodos() {
         String sql = "SELECT * FROM tb_cliente";

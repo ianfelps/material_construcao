@@ -1,6 +1,7 @@
 package dao;
 
 import database.ConnectionFactory;
+import model.Cliente;
 import model.Venda;
 
 import java.sql.*;
@@ -16,10 +17,25 @@ public class VendaDAO {
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
+            ClienteDAO clienteDAO = new ClienteDAO();
+            Cliente cliente = clienteDAO.buscarPorId(venda.getIdCliente());
+
+            if (cliente == null) {
+                throw new RuntimeException("Cliente não encontrado.");
+            }
+
+            // Verifica se cliente novo tem data de pagamento
+            if ("NOVO".equals(cliente.getTipoCliente()) && venda.getDataHoraPagamento() == null) {
+                throw new RuntimeException("Clientes novos devem ter uma data de pagamento.");
+            }
+
+            // Define o valor de IC_PAGO com base na presença de uma data de pagamento
+            boolean icPago = venda.getDataHoraPagamento() != null;
+
             stmt.setInt(1, venda.getIdCliente());
-            stmt.setTimestamp(2, venda.getDataHoraPagamento() != null ? Timestamp.valueOf(venda.getDataHoraPagamento()) : null);
+            stmt.setTimestamp(2, icPago ? Timestamp.valueOf(venda.getDataHoraPagamento()) : null);
             stmt.setDouble(3, venda.getValorTotalVenda());
-            stmt.setBoolean(4, venda.isStatusPago());
+            stmt.setBoolean(4, icPago);
 
             stmt.executeUpdate();
 
@@ -42,10 +58,25 @@ public class VendaDAO {
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
+            ClienteDAO clienteDAO = new ClienteDAO();
+            Cliente cliente = clienteDAO.buscarPorId(venda.getIdCliente());
+
+            if (cliente == null) {
+                throw new RuntimeException("Cliente não encontrado.");
+            }
+
+            // Verifica se cliente novo tem data de pagamento
+            if ("Novo".equals(cliente.getTipoCliente()) && venda.getDataHoraPagamento() == null) {
+                throw new RuntimeException("Clientes novos devem ter uma data de pagamento.");
+            }
+
+            // Define o valor de IC_PAGO com base na presença de uma data de pagamento
+            boolean icPago = venda.getDataHoraPagamento() != null;
+
             stmt.setInt(1, venda.getIdCliente());
             stmt.setTimestamp(2, venda.getDataHoraPagamento() != null ? Timestamp.valueOf(venda.getDataHoraPagamento()) : null);
             stmt.setDouble(3, venda.getValorTotalVenda());
-            stmt.setBoolean(4, venda.isStatusPago());
+            stmt.setBoolean(4, icPago);
             stmt.setInt(5, venda.getIdVenda());
 
             stmt.executeUpdate();

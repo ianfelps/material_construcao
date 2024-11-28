@@ -124,6 +124,34 @@ public class ProdutoDAO {
         return produto;
     }
 
+    // metodo para buscar produto por nome
+    public Produto buscarPorNome(String nome) {
+        String sql = "SELECT * FROM TB_PRODUTO WHERE NO_PRODUTO = ?";
+        Produto produto = null;
+
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, nome);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    produto = new Produto();
+                    produto.setIdProduto(rs.getInt("CD_PRODUTO"));
+                    produto.setNomeProduto(rs.getString("NO_PRODUTO"));
+                    produto.setValorUnitario(rs.getDouble("VL_PRODUTO_UNITARIO"));
+                    // Configure outros atributos conforme necessário
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao buscar produto.", e);
+        }
+
+        return produto;
+    }
+
     // metodo para listar todos os produtos
     public List<Produto> listarTodos() {
         String sql = "SELECT * FROM TB_PRODUTO";

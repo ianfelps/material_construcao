@@ -127,7 +127,7 @@ public class TelaProduto extends JFrame {
                     produto.getIdProduto(),
                     produto.getNomeProduto(),
                     produto.getQuantidadeProduto(),
-                    produto.getValorUnitario()
+                    String.format("R$%.2f", produto.getValorUnitario())
             });
         }
     }
