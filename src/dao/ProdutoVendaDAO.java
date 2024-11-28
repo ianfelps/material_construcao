@@ -116,4 +116,32 @@ public class ProdutoVendaDAO {
         return produtosVenda;
     }
 
+    // metodo para listar os produtos por id de venda
+    public List<ProdutoVenda> listarPorVendaId(int idVenda) {
+        String sql = "SELECT * FROM TB_PRODUTO_VENDA WHERE ID_VENDA = ?";
+        List<ProdutoVenda> produtosVenda = new ArrayList<>();
+
+        try (Connection conn = ConnectionFactory.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, idVenda);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    ProdutoVenda produtoVenda = new ProdutoVenda();
+                    produtoVenda.setIdProdutoVenda(rs.getInt("ID_PRODUTO_VENDA"));
+                    produtoVenda.setIdVenda(rs.getInt("ID_VENDA"));
+                    produtoVenda.setCodigoProduto(rs.getInt("CD_PRODUTO"));
+                    produtoVenda.setQuantidadeProdutoRetirado(rs.getInt("QT_PRODUTO_RETIRADO"));
+                    produtoVenda.setValorTotalProduto(rs.getDouble("VL_TOTAL_PRODUTO"));
+                    produtosVenda.add(produtoVenda);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Erro ao listar produtos na venda.", e);
+        }
+
+        return produtosVenda;
+    }
+
 }

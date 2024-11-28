@@ -25,7 +25,6 @@ public class TelaLogin extends JFrame {
         super("Login");
 
         pack();
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 450);
         setResizable(true);
@@ -114,6 +113,7 @@ public class TelaLogin extends JFrame {
                 // abrir tela do menu principal
                 dispose();
                 TelaMenu telaMenu = new TelaMenu();
+                telaMenu.setLocationRelativeTo(null);
                 telaMenu.setVisible(true);
 
             } else {

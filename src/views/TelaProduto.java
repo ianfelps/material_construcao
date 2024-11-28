@@ -137,7 +137,9 @@ public class TelaProduto extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             dispose();
-            new TelaMenu().setVisible(true);
+            TelaMenu telaMenu = new TelaMenu();
+            telaMenu.setLocationRelativeTo(null);
+            telaMenu.setVisible(true);
         }
     }
 

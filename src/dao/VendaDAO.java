@@ -25,15 +25,15 @@ public class VendaDAO {
             }
 
             // Verifica se cliente novo tem data de pagamento
-            if ("NOVO".equals(cliente.getTipoCliente()) && venda.getDataHoraPagamento() == null) {
+            if ("NOVO".equals(cliente.getTipoCliente()) && venda.getDataPagamento() == null) {
                 throw new RuntimeException("Clientes novos devem ter uma data de pagamento.");
             }
 
             // Define o valor de IC_PAGO com base na presença de uma data de pagamento
-            boolean icPago = venda.getDataHoraPagamento() != null;
+            boolean icPago = venda.getDataPagamento() != null;
 
             stmt.setInt(1, venda.getIdCliente());
-            stmt.setTimestamp(2, icPago ? Timestamp.valueOf(venda.getDataHoraPagamento()) : null);
+            stmt.setTimestamp(2, icPago ? Timestamp.valueOf(venda.getDataPagamento()) : null);
             stmt.setDouble(3, venda.getValorTotalVenda());
             stmt.setBoolean(4, icPago);
 
@@ -66,15 +66,15 @@ public class VendaDAO {
             }
 
             // Verifica se cliente novo tem data de pagamento
-            if ("Novo".equals(cliente.getTipoCliente()) && venda.getDataHoraPagamento() == null) {
+            if ("Novo".equals(cliente.getTipoCliente()) && venda.getDataPagamento() == null) {
                 throw new RuntimeException("Clientes novos devem ter uma data de pagamento.");
             }
 
             // Define o valor de IC_PAGO com base na presença de uma data de pagamento
-            boolean icPago = venda.getDataHoraPagamento() != null;
+            boolean icPago = venda.getDataPagamento() != null;
 
             stmt.setInt(1, venda.getIdCliente());
-            stmt.setTimestamp(2, venda.getDataHoraPagamento() != null ? Timestamp.valueOf(venda.getDataHoraPagamento()) : null);
+            stmt.setTimestamp(2, venda.getDataPagamento() != null ? Timestamp.valueOf(venda.getDataPagamento()) : null);
             stmt.setDouble(3, venda.getValorTotalVenda());
             stmt.setBoolean(4, icPago);
             stmt.setInt(5, venda.getIdVenda());
@@ -118,7 +118,7 @@ public class VendaDAO {
                     venda = new Venda();
                     venda.setIdVenda(rs.getInt("ID_VENDA"));
                     venda.setIdCliente(rs.getInt("ID_CLIENTE"));
-                    venda.setDataHoraPagamento(rs.getTimestamp("DH_PAGAMENTO") != null ? rs.getTimestamp("DH_PAGAMENTO").toLocalDateTime() : null);
+                    venda.setDataPagamento(rs.getTimestamp("DH_PAGAMENTO") != null ? rs.getTimestamp("DH_PAGAMENTO").toLocalDateTime() : null);
                     venda.setValorTotalVenda(rs.getDouble("VL_TOTAL_VENDA"));
                     venda.setStatusPago(rs.getBoolean("IC_PAGO"));
                 }
@@ -145,7 +145,7 @@ public class VendaDAO {
                 Venda venda = new Venda();
                 venda.setIdVenda(rs.getInt("ID_VENDA"));
                 venda.setIdCliente(rs.getInt("ID_CLIENTE"));
-                venda.setDataHoraPagamento(rs.getTimestamp("DH_PAGAMENTO") != null ? rs.getTimestamp("DH_PAGAMENTO").toLocalDateTime() : null);
+                venda.setDataPagamento(rs.getTimestamp("DH_PAGAMENTO") != null ? rs.getTimestamp("DH_PAGAMENTO").toLocalDateTime() : null);
                 venda.setValorTotalVenda(rs.getDouble("VL_TOTAL_VENDA"));
                 venda.setStatusPago(rs.getBoolean("IC_PAGO"));
                 vendas.add(venda);

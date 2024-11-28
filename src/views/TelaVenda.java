@@ -15,6 +15,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -98,7 +100,7 @@ public class TelaVenda extends JFrame {
         dataPagamentoField.setMaximumSize(new Dimension(200, 20));
 
         // texto de placeholder
-        String placeholder = "yyyy-mm-dd hh:mm:ss";
+        String placeholder = "dd/mm/yyyy";
         dataPagamentoField.setText(placeholder);
         dataPagamentoField.setForeground(Color.GRAY);
 
@@ -191,7 +193,9 @@ public class TelaVenda extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             dispose();
-            new TelaMenu().setVisible(true);
+            TelaMenu telaMenu = new TelaMenu();
+            telaMenu.setLocationRelativeTo(null);
+            telaMenu.setVisible(true);
         }
     }
 
@@ -282,7 +286,13 @@ public class TelaVenda extends JFrame {
             // instancia da venda
             Venda venda = new Venda();
             venda.setIdCliente(cliente.getIdCliente());
-            venda.setDataHoraPagamento(dataPagamento.isEmpty() ? null : Timestamp.valueOf(dataPagamento).toLocalDateTime());
+            if (dataPagamento.isEmpty() || dataPagamento.equals("dd/mm/yyyy")) {
+                venda.setDataPagamento(null);
+            } else {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy"); // ajuste o padrao se necessario
+                LocalDate date = LocalDate.parse(dataPagamento, formatter);
+                venda.setDataPagamento(date.atStartOfDay());
+            }
             venda.setValorTotalVenda(valorTotalVenda);
             venda.setStatusPago(!dataPagamento.isEmpty());
 
@@ -338,7 +348,8 @@ public class TelaVenda extends JFrame {
     // metodo para limpar o formulario
     private void limparFormulario() {
         clienteComboBox.setSelectedIndex(0);
-        dataPagamentoField.setText("");
+        dataPagamentoField.setText("dd/mm/yyyy");
+        dataPagamentoField.setForeground(Color.GRAY);
         tableModel.setRowCount(0);
     }
 

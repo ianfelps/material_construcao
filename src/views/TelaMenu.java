@@ -22,7 +22,6 @@ public class TelaMenu extends JFrame {
         super("Menu Principal");
 
         pack();
-        setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 600);
         setResizable(true);

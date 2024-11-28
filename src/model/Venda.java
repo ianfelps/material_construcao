@@ -6,7 +6,7 @@ public class Venda {
     // atributos da TB_VENDA
     private int idVenda;
     private int idCliente;
-    private LocalDateTime dataHoraPagamento;
+    private LocalDateTime dataPagamento;
     private double valorTotalVenda;
     private boolean statusPago;
 
@@ -14,7 +14,7 @@ public class Venda {
     public Venda() {
         this.idVenda = 0;
         this.idCliente = 0;
-        this.dataHoraPagamento = null;
+        this.dataPagamento = null;
         this.valorTotalVenda = 0;
         this.statusPago = false;
     }
@@ -23,7 +23,7 @@ public class Venda {
     public Venda(int idVenda, int idCliente, LocalDateTime dataHoraPagamento, double valorTotalVenda, boolean statusPago) {
         this.idVenda = idVenda;
         this.idCliente = idCliente;
-        this.dataHoraPagamento = dataHoraPagamento;
+        this.dataPagamento = dataHoraPagamento;
         this.valorTotalVenda = valorTotalVenda;
         this.statusPago = statusPago;
     }
@@ -45,12 +45,12 @@ public class Venda {
         this.idCliente = idCliente;
     }
 
-    public LocalDateTime getDataHoraPagamento() {
-        return dataHoraPagamento;
+    public LocalDateTime getDataPagamento() {
+        return dataPagamento;
     }
 
-    public void setDataHoraPagamento(LocalDateTime dataHoraPagamento) {
-        this.dataHoraPagamento = dataHoraPagamento;
+    public void setDataPagamento(LocalDateTime dataPagamento) {
+        this.dataPagamento = dataPagamento;
     }
 
     public double getValorTotalVenda() {
