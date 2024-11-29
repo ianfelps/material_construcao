@@ -9,18 +9,18 @@ O projeto é um sistema de gerenciamento voltado para a administração de um co
 
 # Diagramas
 
-### Diagrama de Classe:
+### Diagrama de Classe
   ![Diagrama de Classe](/imgs/diagrama_classe.png "Diagrama de Classe")
 
-### Diagrama de Caso de Uso:
+### Diagrama de Caso de Uso
   ![Diagrama de Caso de Uso](/imgs/diagrama_casodeuso.png "Diagrama de Caso de Uso")
 
 # Modelagem do Banco de Dados
 
-### Modelo Lógico:
+### Modelo Lógico
   ![Modelo Lógico](/imgs/modelo_logico.png "Modelo Lógico")
 
-### Modelo Conceitual:
+### Modelo Conceitual
   ![Modelo Conceitual](/imgs/modelo_conceitual.png "Modelo Conceitual")
 
 # Estrutura do Banco de Dados
