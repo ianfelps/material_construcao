@@ -10,7 +10,8 @@ O projeto é um sistema de gerenciamento voltado para a administração de um co
 # Diagramas
 
 ### Diagrama de Classe
-  ![Diagrama de Classe](/imgs/diagrama_classe.png "Diagrama de Classe")
+  ![Diagrama de Classe](/imgs/diagrama_classe.png "Diagrama de Classe")  
+  [Link para melhor vizualização](/imgs/diagrama_classe.pdf)
 
 ### Diagrama de Caso de Uso
   ![Diagrama de Caso de Uso](/imgs/diagrama_casodeuso.png "Diagrama de Caso de Uso")
