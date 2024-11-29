@@ -69,7 +69,7 @@ public class TelaVenda extends JFrame {
         tituloLabel.setFont(primariaFont);
         tituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel subtituloLabel = new JLabel("Gerencie suas vendas de forma eficiente!");
+        JLabel subtituloLabel = new JLabel("Registre uma nova venda!");
         subtituloLabel.setFont(secundariaFont);
         subtituloLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
