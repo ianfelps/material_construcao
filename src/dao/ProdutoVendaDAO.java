@@ -32,7 +32,7 @@ public class ProdutoVendaDAO {
                             throw new RuntimeException("Estoque insuficiente para o produto com código: " + produtoVenda.getCodigoProduto());
                         }
 
-                        // Definir o valor total do produto
+                        // definir o valor total do produto
                         produtoVenda.setValorTotalProduto(precoUnitario * produtoVenda.getQuantidadeProdutoRetirado());
                     } else {
                         throw new RuntimeException("Produto não encontrado com código: " + produtoVenda.getCodigoProduto());
@@ -73,14 +73,14 @@ public class ProdutoVendaDAO {
         }
     }
 
-    // metodo para excluir um produto numa venda
-    public void deletar(int idProdutoVenda) {
-        String sql = "DELETE FROM TB_PRODUTO_VENDA WHERE ID_PRODUTO_VENDA = ?";
+    // metodo para excluir os produtos de uma venda
+    public void deletar(int idVenda) {
+        String sql = "DELETE FROM TB_PRODUTO_VENDA WHERE ID_VENDA = ?";
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            stmt.setInt(1, idProdutoVenda);
+            stmt.setInt(1, idVenda);
             stmt.executeUpdate();
 
         } catch (SQLException e) {

@@ -257,7 +257,7 @@ public class TelaCliente extends JFrame {
                     telefoneClienteDAO.deletarPorIdCliente(idCliente);
                     clienteDAO.deletar(idCliente);
                     modeloTabela.removeRow(selectedRow); // remover a linha da tabela
-                    // Supondo que o cliente foi deletado com sucesso
+                    // supondo que o cliente foi deletado com sucesso
                     JOptionPane.showMessageDialog(null, "Cliente deletado com sucesso!", "Confirmação", JOptionPane.INFORMATION_MESSAGE);
                 }
             } else {

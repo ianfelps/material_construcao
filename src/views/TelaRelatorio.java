@@ -30,6 +30,7 @@ public class TelaRelatorio extends JFrame {
     private JTable tabelaVendas;
     private DefaultTableModel modeloTabela;
     private VendaDAO vendaDAO;
+    private ProdutoVendaDAO produtoVendaDAO;
     private ClienteDAO clienteDAO;
 
     public TelaRelatorio() {
@@ -40,6 +41,7 @@ public class TelaRelatorio extends JFrame {
         setResizable(true);
 
         vendaDAO = new VendaDAO();
+        produtoVendaDAO = new ProdutoVendaDAO();
         clienteDAO = new ClienteDAO();
 
         setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
@@ -281,6 +283,7 @@ public class TelaRelatorio extends JFrame {
 
                 if (confirmacao == JOptionPane.YES_OPTION) {
                     try {
+                        produtoVendaDAO.deletar(idVenda);
                         vendaDAO.deletar(idVenda);
                         JOptionPane.showMessageDialog(TelaRelatorio.this, "Venda deletada com sucesso!");
                         carregarVendas();  // atualize a lista de vendas exclusao
